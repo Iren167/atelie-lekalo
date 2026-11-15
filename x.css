@@ -1,0 +1,149 @@
+/* Лекало VS-37: надстройка над каркасом «ателье, Кино».
+   Изюминки: стеклянное меню с подсветкой раздела, живая квитанция (печатается сама),
+   бегущая строка со швом, 3D-карусель работ, контурное название, силуэт из инструментов. */
+
+:root { --x-ease: cubic-bezier(.2, .8, .2, 1); --x-thread: #d98a80; }
+
+/* ---------- закреплённое стеклянное меню ---------- */
+.x-nav { display: none; }
+.x-burger { display: none; }
+@media (min-width: 1000px) {
+  .x-nav { display: flex; align-items: center; gap: .1rem; padding: .28rem; border-radius: 999px; margin-inline: auto;
+    background: rgb(255 255 255 / .12); border: 1px solid rgb(255 255 255 / .26);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+    transition: background-color .3s var(--x-ease), border-color .3s var(--x-ease); }
+  .x-nav a { color: inherit; text-decoration: none; font-size: var(--v-t-sm); font-weight: 500; padding: .5em .95em; border-radius: 999px; white-space: nowrap;
+    min-height: 40px; display: inline-flex; align-items: center; position: relative; transition: background-color .25s var(--x-ease), color .25s; }
+  .x-nav a:hover { background: rgb(255 255 255 / .16); }
+  .x-nav a.is-on { background: var(--hero-ink); color: #24262b; }
+  .bar.is-scrolled .x-nav { background: color-mix(in oklab, var(--v-surface) 72%, transparent); border-color: var(--v-hair); }
+  .bar.is-scrolled .x-nav a:hover { background: var(--v-accent-10); }
+  .bar.is-scrolled .x-nav a.is-on { background: #9a3128; color: #fbf3ee; }
+}
+@media (max-width: 1279px) { .bar__tel { display: none; } }
+@media (max-width: 999px) {
+  .x-burger { display: inline-flex; flex-direction: column; justify-content: center; gap: 6px; width: 44px; height: 44px; padding: 0 11px; margin-left: auto; margin-right: var(--v-2);
+    border: 1px solid rgb(255 255 255 / .3); border-radius: 50%; background: rgb(255 255 255 / .12); color: inherit; cursor: pointer;
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .bar.is-scrolled .x-burger { border-color: var(--v-hair-strong); background: var(--v-surface); }
+  .x-burger span { display: block; height: 2px; background: currentColor; border-radius: 2px; transition: transform .3s var(--x-ease); }
+  .bar.is-open .x-burger span:first-child { transform: translateY(4px) rotate(45deg); }
+  .bar.is-open .x-burger span:last-child { transform: translateY(-4px) rotate(-45deg); }
+  .x-nav { position: absolute; top: calc(100% + .35rem); left: var(--v-gutter); right: var(--v-gutter); flex-direction: column; padding: .5rem; border-radius: 18px;
+    background: color-mix(in oklab, var(--v-surface) 94%, transparent); color: var(--v-ink); border: 1px solid var(--v-hair);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: var(--v-e2);
+    opacity: 0; transform: translateY(-8px); pointer-events: none; visibility: hidden; transition: opacity .25s var(--x-ease), transform .25s var(--x-ease), visibility 0s .25s; }
+  .bar.is-open .x-nav { display: flex; opacity: 1; transform: none; pointer-events: auto; visibility: visible; transition-delay: 0s; }
+  .x-nav a { color: inherit; text-decoration: none; padding: .85em 1em; border-radius: 12px; font-weight: 500; font-size: 1.0625rem; min-height: 48px; display: flex; align-items: center; }
+  .x-nav a.is-on { background: var(--v-accent-10); color: var(--v-accent); }
+  .x-nav { display: flex; }
+}
+
+/* ---------- живая квитанция на первом экране ---------- */
+.tag { width: clamp(17rem, 21vw, 21rem); }
+.tag__rows dd[data-live="item"], .tag__rows dd[data-live="work"] { min-height: 2.5em; line-height: 1.25; }
+.tag__rows div { align-items: start; }
+.tag__rows dd { border-bottom-style: dotted; }
+.tag__note { margin-top: .85rem; padding-top: .6rem; border-top: 1px dashed var(--paper-hair); font-size: var(--v-t-xs); line-height: 1.3; color: var(--paper-soft); }
+.tag__paper.is-swap { animation: x-swap .55s var(--x-ease); }
+@keyframes x-swap { 0% { opacity: .0; transform: translateY(8px) rotate(-1deg); } 100% { opacity: 1; transform: none; } }
+.is-typing::after { content: ""; display: inline-block; width: 1.5px; height: 1.05em; margin-left: 2px; vertical-align: -.15em; background: var(--paper-ink); animation: x-caret .9s steps(1) infinite; }
+@keyframes x-caret { 50% { opacity: 0; } }
+.tag__stamp.is-off { opacity: 0; }
+.tag__stamp.is-slam { animation: x-slam .5s cubic-bezier(.2, 1.5, .4, 1) both; }
+@keyframes x-slam { 0% { opacity: 0; transform: rotate(-14deg) scale(1.9); } 60% { opacity: 1; } 100% { opacity: .92; transform: rotate(-5deg) scale(1); } }
+.tag__stamp { mix-blend-mode: multiply; }
+@media (max-width: 860px) {
+  /* на телефоне квитанция лежит внизу экрана плашкой, нитка и пример скрыты */
+  .tag { display: block; right: var(--v-gutter); left: var(--v-gutter); width: auto; top: auto; bottom: clamp(1.1rem, 4vh, 2rem); transform: none; }
+  .tag::before { display: none; }
+  .tag__paper { padding: .75rem 1rem .8rem; box-shadow: 0 18px 40px rgb(0 0 0 / .5); }
+  .tag__paper::before { display: none; }
+  .tag__head { padding: 0 0 .5rem; grid-template-columns: 1fr auto; align-items: baseline; }
+  .tag__head span { order: 2; }
+  .tag__rows { padding-top: .55rem; gap: .35rem; }
+  .tag__rows div { grid-template-columns: 4.6rem 1fr; }
+  .tag__rows dd[data-live="item"], .tag__rows dd[data-live="work"] { min-height: 1.3em; }
+  .tag__note { display: none; }
+}
+
+/* ---------- бегущая строка со швом ---------- */
+.x-marq { overflow: hidden; background: #24262b; color: #efece5; padding: clamp(.9rem, 2vw, 1.3rem) 0; position: relative; z-index: 2;
+  border-top: 1px solid rgb(255 255 255 / .12); }
+.x-marq__track { display: flex; align-items: center; width: max-content; gap: clamp(1rem, 2.4vw, 2rem); animation: x-marq 48s linear infinite; padding-left: clamp(1rem, 2.4vw, 2rem); }
+.x-marq span { font-family: var(--v-font-display); font-weight: 500; font-size: clamp(1.15rem, 1rem + 1vw, 1.9rem); letter-spacing: .01em; white-space: nowrap; }
+.x-marq i { display: inline-block; width: clamp(2rem, 5vw, 3.6rem); height: 0; border-top: 2px dashed var(--x-thread); position: relative; flex: none; }
+.x-marq i::after { content: ""; position: absolute; right: -4px; top: -6px; width: 8px; height: 8px; border: 1.5px solid var(--x-thread); border-radius: 50%; }
+@keyframes x-marq { to { transform: translateX(-50%); } }
+.x-marq:hover .x-marq__track { animation-play-state: paused; }
+
+/* ---------- силуэт из инструментов вместо «пустой» фотографии мастера ---------- */
+.master__fig { aspect-ratio: 1080 / 1321; background: #fff; }
+.v-page .master__fig img.master__default { object-fit: contain; }
+.master__fig figcaption { background: rgb(20 19 26 / .78); }
+
+/* ---------- 3D-карусель работ ---------- */
+.x-gallery { margin-top: clamp(3.5rem, 8vw, 6.5rem); text-align: center; display: grid; justify-items: center; }
+.x-gallery__head { display: grid; gap: var(--v-3); justify-items: center; max-width: 44rem; margin-bottom: var(--v-5); }
+.x-gallery__head p { color: var(--v-ink-soft); max-width: 52ch; text-wrap: pretty; }
+.x-cube { position: relative; width: 100%; --w: clamp(160px, 22vw, 290px); --h: calc(var(--w) * 1.32); height: calc(var(--h) + 60px); perspective: 1600px; display: grid; place-items: center; overflow: hidden; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; outline: none; }
+.x-cube:active { cursor: grabbing; }
+.x-cube:focus-visible { outline: 2px solid var(--v-accent); outline-offset: -2px; border-radius: 20px; }
+.x-cube__stage { width: var(--w); height: var(--h); position: relative; transform-style: preserve-3d; }
+.x-cube__ring { position: absolute; inset: 0; transform-style: preserve-3d; transform: translateZ(calc(var(--w) * -1.27)) rotateY(var(--rot, 0deg)); transition: transform 1s var(--x-ease); }
+.x-cube__ring.is-drag { transition: none; }
+.x-cube__face { position: absolute; inset: 0; margin: 0; border-radius: 14px; overflow: hidden; transform: rotateY(var(--a)) translateZ(calc(var(--w) * 1.27)); backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  box-shadow: 0 24px 44px -18px rgb(40 30 25 / .55); filter: brightness(.62) saturate(.75); transition: filter .6s; background: #24262b; border: 1px solid color-mix(in srgb, var(--v-accent) 30%, transparent); }
+.x-cube__face.is-front { filter: none; }
+.x-cube__face img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.x-cube__face figcaption { position: absolute; left: 10px; right: 10px; bottom: 10px; padding: 8px 12px; border-radius: 4px; background: rgb(20 19 26 / .68); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  font: 600 .78rem/1.2 var(--v-font-display); letter-spacing: .08em; text-transform: uppercase; color: #f3efe6; text-align: center; }
+.x-cube__nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--v-hair-strong); background: color-mix(in oklab, var(--v-surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--v-accent); cursor: pointer; display: grid; place-items: center; box-shadow: var(--v-e1); transition: transform .25s var(--x-ease), background .25s; }
+.x-cube__nav svg { width: 22px; height: 22px; }
+.x-cube__nav:hover { transform: translateY(-50%) scale(1.1); background: var(--v-surface); }
+.x-cube__nav:active { transform: translateY(-50%) scale(.92); }
+.x-cube__nav--prev { left: clamp(4px, 2vw, 24px); } .x-cube__nav--next { right: clamp(4px, 2vw, 24px); }
+.x-cube__cap { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 8px; text-align: center; }
+.x-cube__cap b { font-family: var(--v-font-display); font-weight: 600; font-size: clamp(1.2rem, 2.4vw, 1.7rem); line-height: 1.1; }
+.x-cube__cap span { font-size: var(--v-t-sm); letter-spacing: .08em; text-transform: uppercase; color: var(--v-accent); font-weight: 500; }
+.x-cube__dots { display: flex; justify-content: center; gap: 4px; margin-top: 6px; }
+.x-cube__dot { width: 28px; height: 28px; padding: 0; border: 0; background: transparent; cursor: pointer; position: relative; }
+.x-cube__dot::after { content: ""; position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: color-mix(in srgb, var(--v-accent) 28%, transparent); transition: transform .3s var(--x-ease), background .3s; }
+.x-cube__dot:hover::after { transform: scale(1.3); }
+.x-cube__dot.is-on::after { background: var(--v-accent); transform: scale(1.4); }
+@media (max-width: 640px) { .x-cube { --w: clamp(150px, 52vw, 220px); } .x-cube__nav { width: 42px; height: 42px; } }
+
+/* ---------- отзывы: все три цитаты одним шрифтом, крупная отличается только размером ---------- */
+.reviews__item--big .reviews__text { font-family: var(--v-font-text); font-weight: 400; font-size: inherit; line-height: inherit; }
+
+/* ---------- читаемость на ярких фото (текст «Квитанции» и подпись на тканях) ---------- */
+.kv__photo img { filter: brightness(.5) saturate(.9); opacity: 1; }
+.kv__veil { background: linear-gradient(to right, rgb(20 19 26 / .72) 0%, rgb(20 19 26 / .5) 48%, rgb(20 19 26 / .2) 78%), linear-gradient(to top, rgb(20 19 26 / .55) 0%, transparent 45%); }
+.sew__fig::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 46%; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, rgb(20 19 26 / .72), transparent); }
+@media (max-width: 860px) {
+  .kv__veil { background: linear-gradient(to bottom, rgb(20 19 26 / .78) 0%, rgb(20 19 26 / .55) 60%, rgb(20 19 26 / .78) 100%); }
+  .hero__veil { background: linear-gradient(to bottom, rgb(20 19 26 / .82) 0%, rgb(20 19 26 / .7) 42%, rgb(20 19 26 / .25) 62%, transparent 78%); }
+}
+
+/* ---------- контурное название в финале ---------- */
+.close { position: relative; overflow: hidden; }
+.x-big { position: absolute; left: 50%; bottom: clamp(3rem, 9vh, 6rem); transform: translateX(-50%); z-index: 0; pointer-events: none; white-space: nowrap;
+  font-family: var(--v-font-display); font-weight: 600; font-size: clamp(6rem, 25vw, 26rem); line-height: .85; letter-spacing: -.02em; color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--v-accent) 16%, transparent); opacity: .9; }
+.close__inner, .foot { position: relative; z-index: 1; }
+
+/* ---------- микро-анимации кнопок: блик и волна ---------- */
+.v-btn { position: relative; overflow: hidden; }
+.v-btn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / .35) 50%, transparent 65%); transform: translateX(-120%); pointer-events: none; }
+.v-btn:hover::after { transform: translateX(120%); transition: transform .7s var(--x-ease); }
+.v-btn:active { transform: scale(.97); }
+.x-ripple { position: absolute; border-radius: 50%; background: rgb(255 255 255 / .45); transform: scale(0); animation: x-ripple .65s var(--x-ease) forwards; pointer-events: none; }
+@keyframes x-ripple { to { transform: scale(2.4); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .x-marq__track { animation: none; }
+  .x-cube__ring { transition: none; }
+  .is-typing::after { animation: none; }
+  .tag__stamp.is-slam, .tag__paper.is-swap { animation: none; }
+}
