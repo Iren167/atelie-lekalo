@@ -84,7 +84,7 @@
 
 /* ---------- 3D-карусель работ ---------- */
 .x-gallery { margin-top: clamp(3.5rem, 8vw, 6.5rem); text-align: center; display: grid; justify-items: center; }
-.x-gallery__head { display: grid; gap: var(--v-3); justify-items: center; max-width: 44rem; margin-bottom: var(--v-5); }
+.x-gallery__head { display: grid; gap: var(--v-3); justify-items: start; justify-self: start; text-align: left; max-width: 44rem; margin-bottom: var(--v-5); }
 .x-gallery__head p { color: var(--v-ink-soft); max-width: 52ch; text-wrap: pretty; }
 .x-cube { position: relative; width: 100%; --w: clamp(160px, 22vw, 290px); --h: calc(var(--w) * 1.32); height: calc(var(--h) + 60px); perspective: 1600px; display: grid; place-items: center; overflow: hidden; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; outline: none; }
 .x-cube:active { cursor: grabbing; }
